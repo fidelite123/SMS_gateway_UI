@@ -241,7 +241,9 @@ function LoginPage() {
   );
 }
 
-export default function LandingPage() {
+export { Nav, Hero, FeaturesPage, PricingPage, ContactPage, Footer, LoginPage };
+
+export default function PublicLanding() {
   return (
     <div>
       <Nav />

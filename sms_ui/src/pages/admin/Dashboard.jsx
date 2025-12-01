@@ -1,16 +1,34 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { adminStats, resellerList, smsSentData, revenueData } from '../../mock/data';
 import Sidebar from '../../components/common/Sidebar';
 import StatCard from '../../components/common/StatCard';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminDashboard() {
+  const { allUsers } = useAuth();
+  const pendingCount = useMemo(() => (allUsers() || []).filter(u => u.status === 'pending').length, [allUsers]);
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <Sidebar role="admin" />
       <div className="flex-1 overflow-auto">
         <div className="p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
+
+          {/* Pending Approvals Alert */}
+          {pendingCount > 0 && (
+            <div className="mb-6 p-4 bg-amber-100 border border-amber-400 rounded-lg flex items-center justify-between">
+              <div>
+                <p className="text-amber-800 font-semibold">⚠️ {pendingCount} user{pendingCount > 1 ? 's' : ''} pending approval</p>
+                <p className="text-amber-700 text-sm">Review and approve new registrations</p>
+              </div>
+              <Link to="/admin/approvals" className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded font-medium">
+                Review Now
+              </Link>
+            </div>
+          )}
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
