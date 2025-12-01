@@ -15,8 +15,8 @@ export default function Settings() {
     country: 'United States'
   });
 
-  const [apiKey, setApiKey] = useState('sk_live_51234567890abcdefghijklmnop');
-  const [showApiKey, setShowApiKey] = useState(false);
+  // const [apiKey, setApiKey] = useState('sk_live_51234567890abcdefghijklmnop');
+  // const [showApiKey, setShowApiKey] = useState(false);
 
   const [teamMembers, setTeamMembers] = useState([
     { id: 1, name: 'John Doe', email: 'john@acmereseller.com', role: 'Admin' },
