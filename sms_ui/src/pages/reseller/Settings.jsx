@@ -7,7 +7,7 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
   const [copied, setCopied] = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
-  
+
   const [profile, setProfile] = useState({
     name: 'Acme Reseller',
     email: 'admin@acmereseller.com',
@@ -15,8 +15,9 @@ export default function Settings() {
     country: 'United States'
   });
 
-  // const [apiKey, setApiKey] = useState('sk_live_51234567890abcdefghijklmnop');
-  // const [showApiKey, setShowApiKey] = useState(false);
+  // SAFE MOCK API KEY (NO REAL KEY)
+  const [apiKey, setApiKey] = useState('********-API-KEY-HIDDEN');
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const [teamMembers, setTeamMembers] = useState([
     { id: 1, name: 'John Doe', email: 'john@acmereseller.com', role: 'Admin' },
@@ -45,7 +46,7 @@ export default function Settings() {
   const handleCopyApiKey = () => {
     navigator.clipboard.writeText(apiKey);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   const handleAddTeamMember = () => {
@@ -71,6 +72,7 @@ export default function Settings() {
         <TopNavigation />
         <div className="flex-1 overflow-auto">
           <div className="p-4 md:p-8">
+
             {/* Header */}
             <div className="flex items-center gap-2 mb-8">
               <a href="/reseller/dashboard" className="text-indigo-600 hover:text-indigo-700">
@@ -100,6 +102,7 @@ export default function Settings() {
                 ))}
               </div>
             </div>
+
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="p-6 space-y-6">
@@ -110,7 +113,7 @@ export default function Settings() {
                       type="text"
                       value={profile.name}
                       onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
                     />
                   </div>
                   <div>
@@ -119,7 +122,7 @@ export default function Settings() {
                       type="email"
                       value={profile.email}
                       onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
                     />
                   </div>
                   <div>
@@ -128,7 +131,7 @@ export default function Settings() {
                       type="tel"
                       value={profile.phone}
                       onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
                     />
                   </div>
                   <div>
@@ -136,7 +139,7 @@ export default function Settings() {
                     <select
                       value={profile.country}
                       onChange={(e) => setProfile({ ...profile, country: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
                     >
                       <option>United States</option>
                       <option>Canada</option>
@@ -145,7 +148,7 @@ export default function Settings() {
                     </select>
                   </div>
                 </div>
-                <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg">
                   Save Changes
                 </button>
               </div>
@@ -154,63 +157,87 @@ export default function Settings() {
             {/* Security Tab */}
             {activeTab === 'security' && (
               <div className="p-6 space-y-6">
+
                 {/* Change Password */}
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <h3 className="font-semibold text-gray-900 mb-4">Change Password</h3>
                   <div className="space-y-4">
-                    <div className="relative">
+                    <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">Current Password</label>
                       <div className="flex gap-2">
                         <input
                           type={passwordForm.showCurrent ? 'text' : 'password'}
                           value={passwordForm.current}
-                          onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
-                          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          onChange={(e) =>
+                            setPasswordForm({ ...passwordForm, current: e.target.value })
+                          }
+                          className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
                         />
                         <button
-                          onClick={() => setPasswordForm({ ...passwordForm, showCurrent: !passwordForm.showCurrent })}
-                          className="text-gray-600 hover:text-gray-900 px-3 py-2"
+                          onClick={() =>
+                            setPasswordForm({
+                              ...passwordForm,
+                              showCurrent: !passwordForm.showCurrent
+                            })
+                          }
+                          className="text-gray-600 px-3 py-2"
                         >
                           {passwordForm.showCurrent ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                       </div>
                     </div>
-                    <div className="relative">
+
+                    <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">New Password</label>
                       <div className="flex gap-2">
                         <input
                           type={passwordForm.showNew ? 'text' : 'password'}
                           value={passwordForm.new}
-                          onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
-                          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          onChange={(e) =>
+                            setPasswordForm({ ...passwordForm, new: e.target.value })
+                          }
+                          className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
                         />
                         <button
-                          onClick={() => setPasswordForm({ ...passwordForm, showNew: !passwordForm.showNew })}
-                          className="text-gray-600 hover:text-gray-900 px-3 py-2"
+                          onClick={() =>
+                            setPasswordForm({
+                              ...passwordForm,
+                              showNew: !passwordForm.showNew
+                            })
+                          }
+                          className="text-gray-600 px-3 py-2"
                         >
                           {passwordForm.showNew ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                       </div>
                     </div>
-                    <div className="relative">
+
+                    <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">Confirm Password</label>
                       <div className="flex gap-2">
                         <input
                           type={passwordForm.showConfirm ? 'text' : 'password'}
                           value={passwordForm.confirm}
-                          onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
-                          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          onChange={(e) =>
+                            setPasswordForm({ ...passwordForm, confirm: e.target.value })
+                          }
+                          className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
                         />
                         <button
-                          onClick={() => setPasswordForm({ ...passwordForm, showConfirm: !passwordForm.showConfirm })}
-                          className="text-gray-600 hover:text-gray-900 px-3 py-2"
+                          onClick={() =>
+                            setPasswordForm({
+                              ...passwordForm,
+                              showConfirm: !passwordForm.showConfirm
+                            })
+                          }
+                          className="text-gray-600 px-3 py-2"
                         >
                           {passwordForm.showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
                       </div>
                     </div>
                   </div>
-                  <button className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                  <button className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg">
                     Update Password
                   </button>
                 </div>
@@ -218,7 +245,10 @@ export default function Settings() {
                 {/* API Key */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="font-semibold text-gray-900 mb-4">API Key</h3>
-                  <p className="text-sm text-gray-600 mb-4">Use this key to authenticate API requests</p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Use this key to authenticate API requests.
+                  </p>
+
                   <div className="flex gap-2 items-center mb-4">
                     <input
                       type={showApiKey ? 'text' : 'password'}
@@ -226,20 +256,23 @@ export default function Settings() {
                       readOnly
                       className="flex-1 border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 font-mono text-sm"
                     />
+
                     <button
                       onClick={() => setShowApiKey(!showApiKey)}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2"
+                      className="text-gray-600 px-3 py-2"
                     >
                       {showApiKey ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
+
                     <button
                       onClick={handleCopyApiKey}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 flex items-center gap-1"
+                      className="text-gray-600 px-3 py-2 flex items-center gap-1"
                     >
                       {copied ? <Check size={20} /> : <Copy size={20} />}
                     </button>
                   </div>
-                  <button className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700">
+
+                  <button className="bg-red-600 text-white px-6 py-2 rounded-lg">
                     Regenerate Key
                   </button>
                 </div>
@@ -266,7 +299,7 @@ export default function Settings() {
                     <label className="cursor-pointer font-medium text-gray-900">{label}</label>
                   </div>
                 ))}
-                <button className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                <button className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-lg">
                   Save Preferences
                 </button>
               </div>
@@ -277,25 +310,28 @@ export default function Settings() {
               <div className="p-6">
                 <button
                   onClick={() => setShowTeamModal(true)}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2 mb-6"
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 mb-6"
                 >
                   <Plus size={20} /> Add Team Member
                 </button>
 
                 <div className="space-y-3">
                   {teamMembers.map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    >
                       <div>
                         <p className="font-medium text-gray-900">{member.name}</p>
                         <p className="text-sm text-gray-600">{member.email}</p>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium">
+                        <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
                           {member.role}
                         </span>
                         <button
                           onClick={() => handleRemoveTeamMember(member.id)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -309,15 +345,16 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Add Team Member Modal */}
+      {/* Add Team Modal */}
       {showTeamModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg max-w-md w-full mx-4">
+
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h2 className="text-xl font-bold">Add Team Member</h2>
               <button
                 onClick={() => setShowTeamModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500"
               >
                 <X size={24} />
               </button>
@@ -328,20 +365,28 @@ export default function Settings() {
                 type="text"
                 placeholder="Full Name"
                 value={newTeamMember.name}
-                onChange={(e) => setNewTeamMember({ ...newTeamMember, name: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onChange={(e) =>
+                  setNewTeamMember({ ...newTeamMember, name: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
               />
+
               <input
                 type="email"
                 placeholder="Email"
                 value={newTeamMember.email}
-                onChange={(e) => setNewTeamMember({ ...newTeamMember, email: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onChange={(e) =>
+                  setNewTeamMember({ ...newTeamMember, email: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
               />
+
               <select
                 value={newTeamMember.role}
-                onChange={(e) => setNewTeamMember({ ...newTeamMember, role: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onChange={(e) =>
+                  setNewTeamMember({ ...newTeamMember, role: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
               >
                 <option value="User">User</option>
                 <option value="Manager">Manager</option>
@@ -352,17 +397,19 @@ export default function Settings() {
             <div className="flex gap-3 p-6 border-t border-gray-200">
               <button
                 onClick={() => setShowTeamModal(false)}
-                className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50"
+                className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg"
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleAddTeamMember}
-                className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+                className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg"
               >
                 Add
               </button>
             </div>
+
           </div>
         </div>
       )}
