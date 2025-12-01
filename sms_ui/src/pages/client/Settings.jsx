@@ -22,7 +22,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <Sidebar role={user.role} />
       <div className="flex-1 overflow-auto">
         <div className="p-8">
