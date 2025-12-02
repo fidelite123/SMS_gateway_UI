@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> a43aedf5e3e81413a224ed02cc67790c73c8b668
+// merge-resolved: removed leftover conflict markers
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/marketing/Home';
