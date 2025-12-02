@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/marketing/Home';
@@ -184,41 +183,3 @@ function App() {
 }
 
 export default App;
-=======
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Sidebar from './components/Sidebar'
-import Footer from './components/Footer'
-import Dashboard from './pages/Dashboard'
-import Calls from './pages/Calls'
-import Users from './pages/Users'
-import Analytics from './pages/Analytics'
-import Settings from './pages/Settings'
-import './index.css'
-
-function App() {
-  return (
-    <BrowserRouter>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <div className="flex flex-1">
-          <Sidebar />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/calls" element={<Calls />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </main>
-        </div>
-        <Footer />
-      </div>
-    </BrowserRouter>
-  )
-}
-
-export default App
->>>>>>> Stashed changes
