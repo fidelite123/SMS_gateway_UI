@@ -16,57 +16,47 @@ This repository contains the WeCall frontend built with Vite + React.
 
 Features:
 
+## WeCall (Frontend)
+
+WeCall is a demo frontend built with Vite + React. The project contains core UI for admin/reseller/client flows that you can run locally and test.
+
+Key technologies:
+
 - React + Vite
 - Tailwind CSS
-- React Router
-- Zustand for global state
-- Recharts for charts and dashboards
-- Mock JSON data for demo
->>>>>>> Stashed changes
+- React Router for routing
+- Zustand + Context for state management
+- Recharts for charts/dashboards
+- Mock JSON for initial demo data
 
 ## Quick start (Windows PowerShell)
 
 ```powershell
-cd C:\Users\user\SMS_gateway_UI\sms_ui
+cd .\sms_ui
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5174/` in your browser (Vite may choose a different port if 5173 is in use).
+Open http://localhost:5173/ in your browser.
 
 ## Project layout
 
 - `src/` — React source files
 - `src/components/` — UI components (Navbar, Sidebar, Footer)
-- `src/pages/` — App pages (Dashboard, Calls, Users, Analytics, Settings)
+- `src/pages/` — App pages
 - `src/store.js` — Zustand store
-- `src/mockData.js` — Mock data for demo purposes
+- `src/mockData.js` — Mock demo data
 
 ## Connect to backend
 
 - Add a `.env` with `VITE_API_URL=https://your-backend.example`
 - Replace mock data usage with `axios` calls to your API
 
-<<<<<<< Updated upstream
 ## Next steps
 
-- Set up a dev proxy in `vite.config.js` to forward `/api` to your backend during development
-- Add auth (login) and protect routes by role
-- Replace mock data with real API calls and update the Zustand store
-=======
-## Git
-
-This folder will be initialized as a git repository and the initial scaffold committed.
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
+- Create a dev proxy in `vite.config.js` to forward `/api` during development
+- Add authentication and role-protected routes
+- Replace mock data with real API calls and add tests
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 

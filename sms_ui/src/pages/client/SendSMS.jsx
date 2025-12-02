@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/common/Sidebar';
+import { parsePhoneNumberFromString, getCountries, getCountryCallingCode } from 'libphonenumber-js';
 
 export default function SendSMS() {
-  const { user, addLog } = useAuth();
+  const { user, addLog, updateUserData } = useAuth();
   const [sendType, setSendType] = useState('single');
+  const [country, setCountry] = useState('RW');
+  const [invalidList, setInvalidList] = useState([]);
   const [recipients, setRecipients] = useState('');
   const [message, setMessage] = useState('');
   const [senderId, setSenderId] = useState('WeCall');
@@ -14,6 +17,38 @@ export default function SendSMS() {
 
   if (!user) return <div>Loading...</div>;
 
+  // Helper: list of country options for the dropdown
+  // helper: convert ISO country code to flag emoji
+  const flagFromCountryCode = (c) => {
+    if (!c || c.length !== 2) return '';
+    // convert ASCII letters to regional indicator symbols
+    return c.toUpperCase().replace(/./g, (char) =>
+      String.fromCodePoint(127397 + char.charCodeAt(0))
+    );
+  };
+
+  const countryOptions = useMemo(() => {
+    try {
+      const regionNames = typeof Intl !== 'undefined' && Intl.DisplayNames
+        ? new Intl.DisplayNames(['en'], { type: 'region' })
+        : null;
+
+      return getCountries().map((c) => ({
+        code: c,
+        dial: getCountryCallingCode(c),
+        name: regionNames ? regionNames.of(c) : c,
+        flag: flagFromCountryCode(c),
+      }));
+    } catch (e) {
+      // fallback minimal set
+      return [
+        { code: 'RW', dial: '250', name: 'Rwanda', flag: flagFromCountryCode('RW') },
+        { code: 'US', dial: '1', name: 'United States', flag: flagFromCountryCode('US') },
+        { code: 'GB', dial: '44', name: 'United Kingdom', flag: flagFromCountryCode('GB') },
+      ];
+    }
+  }, []);
+
   const calculateCredits = () => {
     if (!message) return 0;
     const msgLength = message.length;
@@ -21,12 +56,20 @@ export default function SendSMS() {
     const charsPerSms = isUnicode ? 70 : 160;
     const recipientCount = recipients
       .split(/[,\n]/)
-      .filter(r => r.trim())
+      .map(r => r.trim())
+      .filter(r => r)
+      .map(r => {
+        const parsed = r.startsWith('+') ? parsePhoneNumberFromString(r) : parsePhoneNumberFromString(r, country);
+        return parsed && parsed.isValid() ? parsed.number : null;
+      })
+      .filter(Boolean)
       .length;
     
     const smsCount = Math.ceil(msgLength / charsPerSms);
     return (smsCount * recipientCount * 0.05).toFixed(2);
   };
+
+  // Validation/parsing now uses libphonenumber-js; we accept E.164 or parse with the selected country.
 
   const handleSendSMS = (e) => {
     e.preventDefault();
@@ -37,21 +80,55 @@ export default function SendSMS() {
       return;
     }
 
+    // Parse recipients, sanitize and validate each number using libphonenumber-js
     const recipientList = recipients
       .split(/[,\n]/)
-      .filter(r => r.trim());
+      .map(r => r.trim())
+      .filter(r => r);
+    const invalid = [];
+    const validParsed = [];
 
-    recipientList.forEach(recipient => {
-      addLog({
-        recipient: recipient.trim(),
-        message,
-        status: 'delivered',
-        cost,
-        senderId,
-      });
+    recipientList.forEach(r => {
+      // if starts with +, treat as full E.164 input, otherwise parse using selected country
+      const parsed = r.startsWith('+') ? parsePhoneNumberFromString(r) : parsePhoneNumberFromString(r, country);
+      if (parsed && parsed.isValid()) validParsed.push(parsed.number);
+      else invalid.push(r);
     });
 
-    alert(`SMS sent to ${recipientList.length} recipient(s)`);
+    const digitsRecipients = Array.from(new Set(validParsed));
+
+    // cost is computed for valid recipients only; addLog should show per-recipient cost
+    const msgLength = message.length;
+    const charsPerSms = messageType === 'unicode' ? 70 : 160;
+    const smsCount = Math.max(1, Math.ceil(msgLength / charsPerSms));
+    const costPerSms = 0.05; // same rate used in calculateCredits
+    const costPerRecipient = parseFloat((smsCount * costPerSms).toFixed(2));
+    const totalCost = parseFloat((costPerRecipient * digitsRecipients.length).toFixed(2));
+
+    if (totalCost > user.data.walletBalance) {
+      alert('Insufficient wallet balance for the selected recipients and message length');
+      return;
+    }
+
+    // Deduct wallet balance and update user data (only for valid recipients)
+    const newBalance = parseFloat((user.data.walletBalance - totalCost).toFixed(2));
+    updateUserData({ walletBalance: newBalance, smsSentToday: (user.data.smsSentToday || 0) + (smsCount * digitsRecipients.length) });
+
+    // Add logs per valid recipient (delivered)
+    digitsRecipients.forEach(recipient => {
+      addLog({ recipient: recipient.trim(), message, status: 'delivered', cost: costPerRecipient, senderId });
+    });
+
+    // Add logs for invalid recipients (failed, no cost)
+    invalid.forEach(bad => addLog({ recipient: bad, message, status: 'failed', cost: 0, senderId }));
+
+    // expose invalid numbers in the UI so the client sees which ones failed
+    setInvalidList(invalid);
+
+    const failedCount = invalid.length;
+    let summary = `Sent to ${digitsRecipients.length} recipient(s)`;
+    if (failedCount > 0) summary += `. Failed ${failedCount} invalid number(s)`;
+    alert(summary);
     setRecipients('');
     setMessage('');
   };
@@ -66,8 +143,13 @@ export default function SendSMS() {
       const lines = text.split('\n');
       const numbers = lines
         .filter(line => line.trim())
-        .map(line => line.split(',')[0])
-        .filter(num => num.match(/^\+?[0-9]{10,}/))
+        .map(line => line.split(',')[0].trim())
+        // try parsing with phone library and selected country when missing +
+        .map(n => {
+          const parsed = n && n.startsWith('+') ? parsePhoneNumberFromString(n) : parsePhoneNumberFromString(n, country);
+          return parsed && parsed.isValid() ? parsed.number : null;
+        })
+        .filter(Boolean)
         .join('\n');
       
       setRecipients(numbers);
@@ -144,7 +226,15 @@ export default function SendSMS() {
                     <label className="block text-gray-700 font-semibold mb-2">
                       {sendType === 'bulk' ? 'Recipients (Upload or Paste)' : 'Recipient Number'}
                     </label>
-                    {sendType === 'bulk' && (
+                    <div className="mb-3 flex items-center gap-3">
+                      <label className="text-sm text-gray-700 font-medium">Country</label>
+                        <select value={country} onChange={e => setCountry(e.target.value)} className="border px-3 py-2 rounded-lg">
+                          {countryOptions.map(c => (
+                            <option key={c.code} value={c.code}>{c.name} (+{c.dial})</option>
+                          ))}
+                        </select>
+                    </div>
+                    {sendType === 'bulk' ? (
                       <div className="mb-4">
                         <input
                           type="file"
@@ -154,18 +244,33 @@ export default function SendSMS() {
                         />
                         <p className="text-sm text-gray-500 mt-2">Or paste numbers below (one per line)</p>
                       </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <div className="px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-sm text-gray-700">+{(countryOptions.find(c => c.code === country) || {}).dial || ''}</div>
+                        <input
+                          type="text"
+                          value={recipients}
+                          onChange={(e) => setRecipients(e.target.value)}
+                          placeholder={"Phone number (without + or with +)"}
+                          className="flex-1 border border-gray-300 rounded-r-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                          required
+                        />
+                      </div>
                     )}
-                    <textarea
-                      value={recipients}
-                      onChange={(e) => setRecipients(e.target.value)}
-                      placeholder={sendType === 'bulk' ? "+1234567890\n+0987654321\n+1111111111" : "+1234567890"}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
-                      rows={sendType === 'bulk' ? 6 : 2}
-                      required
-                    />
-                    <p className="text-sm text-gray-500 mt-2">
-                      Recipients: {recipients.split(/[,\n]/).filter(r => r.trim()).length}
-                    </p>
+                    <p className="text-sm text-gray-500 mt-2">Recipients: {recipients.split(/[,\n]/).filter(r => r.trim()).length}</p>
+
+                    {/* Inline feedback for invalid numbers */}
+                    {invalidList && invalidList.length > 0 && (
+                      <div className="mt-3 bg-red-50 border border-red-200 text-red-800 p-3 rounded">
+                        <div className="font-semibold mb-1">⚠️ Some numbers were invalid and not sent</div>
+                        <ul className="text-sm list-disc list-inside max-h-32 overflow-auto">
+                          {invalidList.map((n, idx) => (
+                            <li key={idx}>{n}</li>
+                          ))}
+                        </ul>
+                        <div className="mt-2 text-xs text-red-700">Fix the numbers and send again.</div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Message */}
@@ -272,13 +377,13 @@ export default function SendSMS() {
               )}
 
               {/* Quick Tips */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 className="font-semibold text-blue-900 mb-3">💡 Quick Tips</h3>
                 <ul className="text-sm text-blue-800 space-y-2">
                   <li>✓ Use {messageType === 'unicode' ? '70' : '160'} characters per SMS</li>
                   <li>✓ Include country code (+1, +44, etc.)</li>
                   <li>✓ Longer messages cost more credits</li>
-                  <li>✓ Numbers must be valid format</li>
+                  <li>✓ Numbers will be validated against the selected country (invalid numbers won't be sent)</li>
                 </ul>
               </div>
             </div>

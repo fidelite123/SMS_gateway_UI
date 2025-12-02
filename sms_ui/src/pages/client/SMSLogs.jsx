@@ -57,6 +57,7 @@ export default function ClientLogs() {
                       <th className="px-4 py-3 text-left">Date</th>
                       <th className="px-4 py-3 text-left">Recipient</th>
                       <th className="px-4 py-3 text-left">Message</th>
+                      <th className="px-4 py-3 text-left">Cost</th>
                       <th className="px-4 py-3 text-left">Status</th>
                     </tr>
                   </thead>
@@ -66,6 +67,7 @@ export default function ClientLogs() {
                         <td className="px-4 py-3">{log.date}</td>
                         <td className="px-4 py-3">{log.recipient}</td>
                         <td className="px-4 py-3 truncate">{log.message}</td>
+                        <td className="px-4 py-3">${(log.cost || 0).toFixed(2)}</td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-1 rounded text-xs font-semibold ${
                             log.status === 'delivered' ? 'bg-green-100 text-green-800' :
