@@ -6,9 +6,59 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [users, setUsers] = useState(() => {
-    // Load users from localStorage on initialization
+    // Load users from localStorage on initialization; seed default admin if missing
     const saved = localStorage.getItem('sms_gateway_users');
-    return saved ? JSON.parse(saved) : [];
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const hasAdmin = Array.isArray(parsed) && parsed.some(u => u.role === 'admin');
+        if (!hasAdmin) {
+          const defaultAdmin = {
+            id: 'admin-1',
+            email: 'admin@wecall.local',
+            password: 'Admin@12345',
+            role: 'admin',
+            profile: { name: 'System Admin', phone: '', company: 'WeCall' },
+            data: {
+              walletBalance: 0,
+              totalClients: 0,
+              activeSMSCampaigns: 0,
+              totalSMSSent: 0,
+              monthlyRevenue: 0,
+              clients: [],
+              logs: [],
+            },
+            createdAt: new Date().toISOString(),
+          };
+          const updated = [...parsed, defaultAdmin];
+          localStorage.setItem('sms_gateway_users', JSON.stringify(updated));
+          return updated;
+        }
+        return parsed;
+      } catch {
+        // fall through to reseed if parsing fails
+      }
+    }
+
+    const defaultAdmin = {
+      id: 'admin-1',
+      email: 'admin@wecall.local',
+      password: 'Admin@12345',
+      role: 'admin',
+      profile: { name: 'System Admin', phone: '', company: 'WeCall' },
+      data: {
+        walletBalance: 0,
+        totalClients: 0,
+        activeSMSCampaigns: 0,
+        totalSMSSent: 0,
+        monthlyRevenue: 0,
+        clients: [],
+        logs: [],
+      },
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem('sms_gateway_users', JSON.stringify([defaultAdmin]));
+    return [defaultAdmin];
   });
 
   // Save users to localStorage whenever they change
@@ -28,6 +78,7 @@ export const AuthProvider = ({ children }) => {
       email,
       password, // In production, this would be hashed
       role,
+      status: role === 'admin' ? 'active' : 'pending',
       profile: {
         name: '',
         phone: '',
@@ -68,6 +119,14 @@ export const AuthProvider = ({ children }) => {
       throw new Error('Invalid email or password');
     }
 
+    if (foundUser.status === 'pending') {
+      throw new Error('Your account is pending approval. Please wait for admin confirmation.');
+    }
+
+    if (foundUser.status === 'inactive') {
+      throw new Error('Your account has been deactivated. Contact support for assistance.');
+    }
+
     setUser(foundUser);
     setIsAuthenticated(true);
     return foundUser;
@@ -76,6 +135,61 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
+  };
+
+  // Admin helpers
+  const allUsers = () => users;
+
+  const createReseller = ({ email, password, name = '', company = '' }) => {
+    const exists = users.some(u => u.email === email);
+    if (exists) throw new Error('Email already exists');
+    const reseller = {
+      id: Date.now().toString(),
+      email,
+      password,
+      role: 'reseller',
+      status: 'active',
+      profile: { name, phone: '', company },
+      data: {
+        walletBalance: 1000,
+        totalClients: 0,
+        activeSMSCampaigns: 0,
+        totalSMSSent: 0,
+        monthlyRevenue: 0,
+        clients: [],
+        logs: [],
+      },
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [...users, reseller];
+    setUsers(updated);
+    return reseller;
+  };
+
+  const setUserStatus = (id, status) => {
+    const updated = users.map(u => u.id === id ? { ...u, status } : u);
+    setUsers(updated);
+    if (user && user.id === id) setUser({ ...user, status });
+  };
+
+  const resetUserPassword = (id, newPassword) => {
+    const updated = users.map(u => u.id === id ? { ...u, password: newPassword } : u);
+    setUsers(updated);
+  };
+
+  const deleteUser = (id) => {
+    const target = users.find(u => u.id === id);
+    if (!target) return;
+    if (target.role === 'admin') throw new Error('Cannot delete admin users');
+    const updated = users.filter(u => u.id !== id);
+    setUsers(updated);
+    if (user && user.id === id) logout();
+  };
+
+  const approveUser = (id) => {
+    const updated = users.map(u => u.id === id ? { ...u, status: 'active' } : u);
+    setUsers(updated);
+    if (user && user.id === id) setUser({ ...user, status: 'active' });
   };
 
   const updateUserProfile = (updates) => {
@@ -225,6 +339,12 @@ export const AuthProvider = ({ children }) => {
       addLog,
       addContact,
       sendSMSForClient,
+      allUsers,
+      createReseller,
+      setUserStatus,
+      resetUserPassword,
+      deleteUser,
+      approveUser,
     }}>
       {children}
     </AuthContext.Provider>

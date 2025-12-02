@@ -1,13 +1,30 @@
+<<<<<<< Updated upstream
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import LandingPage from './pages/LandingPage';
+import Home from './pages/marketing/Home';
+import Features from './pages/marketing/Features';
+import Pricing from './pages/marketing/Pricing';
+import Contact from './pages/marketing/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/admin/Dashboard';
+import AdminLogin from './pages/admin/Login';
+import AdminApprovals from './pages/admin/Approvals';
+import AdminResellers from './pages/admin/Resellers';
+import AdminClients from './pages/admin/Clients';
+import AdminContacts from './pages/admin/Contacts';
+import AdminWallet from './pages/admin/Wallet';
+import AdminReports from './pages/admin/Reports';
+import AdminRouting from './pages/admin/Routing';
+import AdminSMPP from './pages/admin/SMPP';
+import AdminSettings from './pages/admin/Settings';
 import ResellerDashboard from './pages/reseller/Dashboard';
 import ResellerClients from './pages/reseller/Clients';
+import ResellerContacts from './pages/reseller/Contacts';
 import ResellerSMSLogs from './pages/reseller/SMSLogs';
+import ResellerWallet from './pages/reseller/Wallet';
 import ResellerBilling from './pages/reseller/Billing';
+import ResellerBranding from './pages/reseller/Branding';
 import ResellerSendSMS from './pages/reseller/SendSMS';
 import ClientDashboard from './pages/client/Dashboard';
 import ClientSendSMS from './pages/client/SendSMS';
@@ -18,6 +35,7 @@ import ClientTemplates from './pages/client/Templates';
 import ClientSenderID from './pages/client/SenderID';
 import ClientAPIManagement from './pages/client/APIManagement';
 import ClientSettings from './pages/client/Settings';
+import Security from './pages/common/Security';
 
 function ProtectedRoute({ children, role }) {
   const { user } = useAuth();
@@ -31,12 +49,56 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin/dashboard"
             element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/approvals"
+            element={<ProtectedRoute role="admin"><AdminApprovals /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/resellers"
+            element={<ProtectedRoute role="admin"><AdminResellers /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/clients"
+            element={<ProtectedRoute role="admin"><AdminClients /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/reports"
+            element={<ProtectedRoute role="admin"><AdminReports /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/settings"
+            element={<ProtectedRoute role="admin"><AdminSettings /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/contacts"
+            element={<ProtectedRoute role="admin"><AdminContacts /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/wallet"
+            element={<ProtectedRoute role="admin"><AdminWallet /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/routing"
+            element={<ProtectedRoute role="admin"><AdminRouting /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/smpp"
+            element={<ProtectedRoute role="admin"><AdminSMPP /></ProtectedRoute>}
+          />
+          <Route
+            path="/admin/security"
+            element={<ProtectedRoute role="admin"><Security /></ProtectedRoute>}
           />
           <Route
             path="/reseller/dashboard"
@@ -57,6 +119,22 @@ function App() {
           <Route
             path="/reseller/send"
             element={<ProtectedRoute role="reseller"><ResellerSendSMS /></ProtectedRoute>}
+          />
+          <Route
+            path="/reseller/contacts"
+            element={<ProtectedRoute role="reseller"><ResellerContacts /></ProtectedRoute>}
+          />
+          <Route
+            path="/reseller/wallet"
+            element={<ProtectedRoute role="reseller"><ResellerWallet /></ProtectedRoute>}
+          />
+          <Route
+            path="/reseller/branding"
+            element={<ProtectedRoute role="reseller"><ResellerBranding /></ProtectedRoute>}
+          />
+          <Route
+            path="/reseller/security"
+            element={<ProtectedRoute role="reseller"><Security /></ProtectedRoute>}
           />
           <Route
             path="/client/dashboard"
@@ -94,6 +172,10 @@ function App() {
             path="/client/settings"
             element={<ProtectedRoute role="client"><ClientSettings /></ProtectedRoute>}
           />
+          <Route
+            path="/client/security"
+            element={<ProtectedRoute role="client"><Security /></ProtectedRoute>}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
@@ -102,3 +184,41 @@ function App() {
 }
 
 export default App;
+=======
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import Sidebar from './components/Sidebar'
+import Footer from './components/Footer'
+import Dashboard from './pages/Dashboard'
+import Calls from './pages/Calls'
+import Users from './pages/Users'
+import Analytics from './pages/Analytics'
+import Settings from './pages/Settings'
+import './index.css'
+
+function App() {
+  return (
+    <BrowserRouter>
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <div className="flex flex-1">
+          <Sidebar />
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/calls" element={<Calls />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </main>
+        </div>
+        <Footer />
+      </div>
+    </BrowserRouter>
+  )
+}
+
+export default App
+>>>>>>> Stashed changes
