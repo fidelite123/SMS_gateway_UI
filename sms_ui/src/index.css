@@ -235,4 +235,69 @@ th, td {
 }
 
 
+<<<<<<< HEAD
 /* end of primary stylesheet (keeps 'Updated upstream' styles) */
+=======
+=======
+* {
+  transition: colors 0.2s;
+}
+
+body {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #3B82F6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2563EB;
+}
+
+.btn-secondary {
+  background-color: #10B981;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #059669;
+}
+
+.btn-danger {
+  background-color: #EF4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #DC2626;
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.input:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #3B82F6;
+}
+>>>>>>> a43aedf5e3e81413a224ed02cc67790c73c8b668
